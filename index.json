@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "name": "vriska's plugins",
+  "description": "(vriska's plugins)",
+  "plugins": {
+    "dev.vriska.revenge-pk": {
+      "name": "revenge-pk",
+      "description": "PluralKit integration for Revenge Next",
+      "author": "leo vriska",
+      "channels": {
+        "latest": "0.1.0"
+      },
+      "versions": {
+        "0.1.0": {
+          "url": "https://leo60228.github.io/revenge-plugins/pool/dev.vriska.revenge-pk@0.1.0.zip",
+          "sha256": "00e8d3f70746f21cd594637b2f00cacbad7ec29a2d1a0e80fc7ce5e0ad593e36",
+          "size": 7981,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    }
+  }
+}
