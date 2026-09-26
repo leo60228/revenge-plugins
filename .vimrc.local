@@ -1,0 +1,5 @@
+lua <<EOF
+    vim.lsp.enable('eslint', false)
+    vim.lsp.enable('biome')
+    vim.bo.ft = vim.bo.ft
+EOF

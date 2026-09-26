@@ -1,0 +1,19 @@
+{
+	"format": 1,
+	"id": "dev.vriska.revenge-pk",
+	"name": "revenge-pk",
+	"description": "PluralKit integration for Revenge Next",
+	"author": "leo vriska",
+	"version": "0.1.0",
+	"dependencies": {
+		"revenge.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
