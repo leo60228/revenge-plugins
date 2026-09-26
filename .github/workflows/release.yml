@@ -5,7 +5,7 @@ name: Release plugins
 
 on:
   push:
-    branches: [main]
+    branches: [release]
   workflow_dispatch:
 
 concurrency:
