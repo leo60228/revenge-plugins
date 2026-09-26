@@ -4,7 +4,7 @@
 	"name": "revenge-pk",
 	"description": "PluralKit integration for Revenge Next",
 	"author": "leo vriska",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"dependencies": {
 		"revenge.api": {
 			"version": ">=1 <2"
@@ -14,6 +14,10 @@
 		}
 	},
 	"dist": {
-		"script": "index.js"
+		"script": "index.js",
+		"android": {
+			"path": "plugin.jar",
+			"class": "dev.vriska.revengepk.RevengePk"
+		}
 	}
 }
