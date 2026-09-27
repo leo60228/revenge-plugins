@@ -2,9 +2,6 @@
 
 package dev.vriska.revengepk
 
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.widget.TextView
 import io.github.revenge.plugins.plugin
 import de.robv.android.xposed.XC_MethodHook
@@ -12,28 +9,12 @@ import de.robv.android.xposed.XposedHelpers
 import java.lang.invoke.MethodHandles.publicLookup
 import java.lang.invoke.MethodType.methodType
 
-data class CacheEntry(val memberColor: Int?, val systemColor: Int?, val name: String?, val tag: String?)
-
-val cache = HashMap<String, CacheEntry>()
-
 var hook: XC_MethodHook.Unhook? = null
 
 @Suppress("UNUSED")
 val revengePk = plugin {
     start {
-        bridge.registerMethod("revengepk.addToCache") { args ->
-            val entries = (args[0] as Map<*, *>).mapKeys { it.key as String }
-            entries.mapValuesTo(cache) {
-                val entry = it.value as Map<*, *>
-                CacheEntry(
-                    (entry["memberColor"] as Double?)?.toInt(),
-                    (entry["systemColor"] as Double?)?.toInt(),
-                    entry["name"] as String?,
-                    entry["tag"] as String?,
-                )
-            }
-            Unit
-        }
+        Cache.bridge(bridge)
 
         val guildIdClass = XposedHelpers.findClass("com.discord.primitives.GuildId", classLoader)
         val messageClass = XposedHelpers.findClass("com.discord.chat.bridge.Message", classLoader)
@@ -66,7 +47,7 @@ val revengePk = plugin {
                     val guildId = getGuildId.invokeExact(message)?.toString() ?: return
                     val username = (getUsername.invokeExact(message) as String?) ?: return
                     val cacheKey = "${guildId}:${username}"
-                    val entry = cache[cacheKey] ?: return
+                    val entry = Cache[cacheKey] ?: return
                     log.i(entry.toString())
 
                     /* if (entry.memberColor != null && entry.systemColor != null) {
