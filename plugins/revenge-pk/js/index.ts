@@ -1,10 +1,10 @@
 import { schema } from '@easrng/schema';
 import { getModules } from '@revenge-mod/modules/finders';
 import { withName } from '@revenge-mod/modules/finders/filters';
+import { callNativeMethodSync } from '@revenge-mod/modules/native';
 import { instead } from '@revenge-mod/patcher';
 import PQueue from 'p-queue';
 import type { Schema } from '@easrng/schema';
-import { callNativeMethodSync } from '@revenge-mod/modules/native';
 
 const queue = new PQueue({
 	intervalCap: 10,
@@ -63,10 +63,10 @@ function parseColor(color: string | null | undefined): number | null {
 	const parsedColor = parseInt(color, 16) + 0xff000000;
 	const colorData = new Uint32Array([parsedColor]);
 	const colorDataView = new DataView(colorData.buffer);
-	const nativeColor = colorDataView.getInt32(0, true);
-	return nativeColor;
+	return colorDataView.getInt32(0, true);
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default plugin({
 	jsonStorage: {
 		default: { cacheVersion: CACHE_VERSION, cache: {} },
@@ -166,6 +166,7 @@ export default plugin({
 });
 
 declare module '@revenge-mod/modules/native' {
+	// noinspection JSUnusedGlobalSymbols
 	export interface NativeMethods {
 		'revengepk.addToCache': [[cache: Cache], undefined];
 	}
