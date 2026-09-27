@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedHelpers
 import java.lang.invoke.MethodHandles.publicLookup
 import java.lang.invoke.MethodType.methodType
 
-data class CacheEntry(val memberColor: Int?, val systemColor: Int?)
+data class CacheEntry(val memberColor: Int?, val systemColor: Int?, val name: String?, val tag: String?)
 
 val cache = HashMap<String, CacheEntry>()
 
@@ -27,7 +27,9 @@ val revengePk = plugin {
                 val entry = it.value as Map<*, *>
                 CacheEntry(
                     (entry["memberColor"] as Double?)?.toInt(),
-                    (entry["systemColor"] as Double?)?.toInt()
+                    (entry["systemColor"] as Double?)?.toInt(),
+                    entry["name"] as String?,
+                    entry["tag"] as String?,
                 )
             }
             Unit

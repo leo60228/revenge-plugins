@@ -4,7 +4,7 @@
 	"name": "revenge-pk",
 	"description": "PluralKit integration for Revenge Next",
 	"author": "leo vriska",
-	"version": "0.1.14",
+	"version": "0.1.15",
 	"dependencies": {
 		"revenge.api": {
 			"version": ">=1 <2"

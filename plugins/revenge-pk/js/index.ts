@@ -15,10 +15,13 @@ const queue = new PQueue({
 
 interface System {
 	color?: null | string;
+	tag?: null | string;
 }
 
 interface Member {
 	color?: null | string;
+	name?: null | string;
+	display_name?: null | string;
 }
 
 interface ProxiedMessage {
@@ -26,7 +29,7 @@ interface ProxiedMessage {
 	member: Member;
 }
 const proxiedMessageSchema: Schema<ProxiedMessage> = schema(
-	'{"type":"object","properties":{"member":{"type":"object","properties":{"color":{"anyOf":[{"type":"null"},{"type":"string"}]}}},"system":{"type":"object","properties":{"color":{"anyOf":[{"type":"null"},{"type":"string"}]}}}},"required":["member","system"]}',
+	'{"type":"object","properties":{"member":{"type":"object","properties":{"color":{"anyOf":[{"type":"null"},{"type":"string"}]},"display_name":{"anyOf":[{"type":"null"},{"type":"string"}]},"name":{"anyOf":[{"type":"null"},{"type":"string"}]}}},"system":{"type":"object","properties":{"color":{"anyOf":[{"type":"null"},{"type":"string"}]},"tag":{"anyOf":[{"type":"null"},{"type":"string"}]}}}},"required":["member","system"]}',
 );
 
 function getProxiedMessage(id: string): Promise<ProxiedMessage> {
@@ -52,10 +55,12 @@ interface Cache {
 		expiresAt: number;
 		systemColor: number | null;
 		memberColor: number | null;
+		name: string | null;
+		tag: string | null;
 	};
 }
 
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 
 function parseColor(color: string | null | undefined): number | null {
 	if (!color) return null;
@@ -133,6 +138,8 @@ export default plugin({
 										expiresAt,
 										systemColor: parseColor(system.color),
 										memberColor: parseColor(member.color),
+										name: member.display_name ?? member.name ?? null,
+										tag: system.tag ?? null,
 									};
 									const entries = { [cacheKey]: entry };
 
