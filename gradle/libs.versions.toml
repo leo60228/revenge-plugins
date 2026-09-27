@@ -7,7 +7,7 @@ xposed = "82"
 revengeApi = "1.0.0"
 
 compileSdk = "36"
-minSdk = "24"
+minSdk = "26"
 targetSdk = "36"
 javaVersion = "25"
 
