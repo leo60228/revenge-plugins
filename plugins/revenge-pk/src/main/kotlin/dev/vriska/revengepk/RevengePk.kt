@@ -69,9 +69,15 @@ val revengePk = plugin {
                     val entry = cache[cacheKey] ?: return
                     log.i(entry.toString())
 
-                    val spannable = SpannableString(textView.getText())
-                    //spannable.setSpan(ForegroundColorSpan(0xFFFF00FF.toInt()), 1, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    textView.setText(spannable, TextView.BufferType.SPANNABLE)
+                    /* if (entry.memberColor != null && entry.systemColor != null) {
+                        val spannable = SpannableString(textView.getText())
+                        spannable.setSpan(ForegroundColorSpan(0xFFFF00FF.toInt()), 1, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        textView.setText(spannable, TextView.BufferType.SPANNABLE)
+                    } else */ if (entry.memberColor != null) {
+                        textView.setTextColor(entry.memberColor)
+                    } else if (entry.systemColor != null) {
+                        textView.setTextColor(entry.systemColor)
+                    }
                 }
             })
     }

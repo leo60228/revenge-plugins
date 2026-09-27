@@ -116,13 +116,8 @@ export default plugin({
 						if (Object.hasOwn(cache, cacheKey)) {
 							console.log('[revenge-pk] in cache');
 
-							const { expiresAt, systemColor, memberColor } = cache[cacheKey];
+							const { expiresAt } = cache[cacheKey];
 							if (expiresAt > Date.now()) needsRefresh = false;
-
-							const color = memberColor || systemColor;
-							if (color) {
-								ret.message.usernameColor = color;
-							}
 						}
 
 						console.log(`[revenge-pk] needs refresh: ${needsRefresh}`);
