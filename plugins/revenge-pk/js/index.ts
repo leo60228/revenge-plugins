@@ -4,6 +4,7 @@ import { withName } from '@revenge-mod/modules/finders/filters';
 import { instead } from '@revenge-mod/patcher';
 import PQueue from 'p-queue';
 import type { Schema } from '@easrng/schema';
+import { callNativeMethodSync } from '@revenge-mod/modules/native';
 
 const queue = new PQueue({
 	intervalCap: 10,
@@ -46,19 +47,44 @@ function getProxiedMessage(id: string): Promise<ProxiedMessage> {
 
 const pending = new Set();
 
+interface Cache {
+	[key: string]: {
+		expiresAt: number;
+		systemColor: number | null;
+		memberColor: number | null;
+	};
+}
+
+const CACHE_VERSION = 2;
+
+function parseColor(color: string | null | undefined): number | null {
+	if (!color) return null;
+
+	const parsedColor = parseInt(color, 16) + 0xff000000;
+	const colorData = new Uint32Array([parsedColor]);
+	const colorDataView = new DataView(colorData.buffer);
+	const nativeColor = colorDataView.getInt32(0, true);
+	return nativeColor;
+}
+
 export default plugin({
 	jsonStorage: {
-		default: { cache: {} },
+		default: { cacheVersion: CACHE_VERSION, cache: {} },
 	},
 	async start({ jsonStorage, cleanup }) {
 		console.log('[revenge-pk] started');
-		const cache: {
-			[key: string]: {
-				expiresAt: number;
-				system: System;
-				member: Member;
-			};
-		} = (await jsonStorage.get())?.cache || {};
+
+		const storage = await jsonStorage.get();
+		let cache: Cache = {};
+
+		if (!storage.cacheVersion || storage.cacheVersion !== CACHE_VERSION) {
+			console.log('[revenge-pk] cache out of date');
+			await jsonStorage.set({ cacheVersion: CACHE_VERSION, cache }, true);
+		} else if (storage.cache) {
+			cache = storage.cache;
+		}
+		callNativeMethodSync('revengepk.addToCache', [cache]);
+
 		getModules(withName('RowManager'), (RowManager: any) => {
 			const unpatch = instead(
 				RowManager.prototype,
@@ -85,17 +111,12 @@ export default plugin({
 						if (Object.hasOwn(cache, cacheKey)) {
 							console.log('[revenge-pk] in cache');
 
-							const { expiresAt, system, member } = cache[cacheKey];
+							const { expiresAt, systemColor, memberColor } = cache[cacheKey];
 							if (expiresAt > Date.now()) needsRefresh = false;
 
-							const color = member.color ?? system.color;
+							const color = memberColor || systemColor;
 							if (color) {
-								console.log(`[revenge-pk] color: #${color}`);
-								const parsedColor = parseInt(color, 16) + 0xff000000;
-								const colorData = new Uint32Array([parsedColor]);
-								const colorDataView = new DataView(colorData.buffer);
-								const nativeColor = colorDataView.getInt32(0, true);
-								ret.message.usernameColor = nativeColor;
+								ret.message.usernameColor = color;
 							}
 						}
 
@@ -108,10 +129,17 @@ export default plugin({
 								.then(({ system, member }) => {
 									console.log(`[revenge-pk] refreshed user ${cacheKey}`);
 									const expiresAt = Date.now() + 1000 * 60 * 60 * 6;
-									const entry = { expiresAt, system, member };
+									const entry = {
+										expiresAt,
+										systemColor: parseColor(system.color),
+										memberColor: parseColor(member.color),
+									};
+									const entries = { [cacheKey]: entry };
+
 									cache[cacheKey] = entry;
+									callNativeMethodSync('revengepk.addToCache', [entries]);
 									jsonStorage
-										.set({ cache: { [cacheKey]: entry } })
+										.set({ cache: entries })
 										.then(() => console.log('[revenge-pk] cache saved'))
 										.catch(err =>
 											console.error(`[revenge-pk] error saving cache: ${err}`),
@@ -136,3 +164,9 @@ export default plugin({
 		console.log('[revenge-pk] stopped');
 	},
 });
+
+declare module '@revenge-mod/modules/native' {
+	export interface NativeMethods {
+		'revengepk.addToCache': [[cache: Cache], undefined];
+	}
+}

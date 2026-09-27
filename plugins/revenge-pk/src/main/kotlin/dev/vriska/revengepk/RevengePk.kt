@@ -2,11 +2,51 @@
 
 package dev.vriska.revengepk
 
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.widget.TextView
 import io.github.revenge.plugins.plugin
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedHelpers
+
+data class CacheEntry(val memberColor: Int?, val systemColor: Int?)
+
+val cache = HashMap<String, CacheEntry>()
+
+var hook: XC_MethodHook.Unhook? = null
 
 @Suppress("UNUSED")
 val revengePk = plugin {
     start {
-        log.i("hi")
+        bridge.registerMethod("revengepk.addToCache") { args ->
+            val entries = args[0] as Map<String, Map<String, Double>>
+            cache.putAll(entries.mapValues { CacheEntry(it.value.get("memberColor")?.toInt(), it.value.get("systemColor")?.toInt()) })
+        }
+
+        log.i("setting up hooks")
+        hook = XposedHelpers.findAndHookMethod("com.discord.chat.presentation.message.MessageUtilsKt", classLoader, "clearOrSetRoleColors", TextView::class.java, "com.discord.chat.bridge.Message", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val textView = param.args[0] as TextView
+                val message = param.args[1]
+
+                val tagText = XposedHelpers.getObjectField(message, "tagText") as String?
+                if (tagText != "PK") return
+
+                val guildId = XposedHelpers.getObjectField(message, "guildId")?.toString() ?: return
+                val username = XposedHelpers.getObjectField(message, "username") as String ?: return
+                val cacheKey = "${guildId}:${username}"
+                val entry = cache.get(cacheKey) ?: return
+                log.i(entry.toString())
+
+                val spannable = SpannableString(textView.getText())
+                //spannable.setSpan(ForegroundColorSpan(0xFFFF00FF.toInt()), 1, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                textView.setText(spannable, TextView.BufferType.SPANNABLE)
+            }
+        })
+    }
+
+    stop {
+        hook?.unhook()
     }
 }
