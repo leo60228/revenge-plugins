@@ -36,6 +36,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+      - uses: gradle/actions/setup-gradle@v6
 
       - run: bun install
 
@@ -45,6 +46,16 @@ jobs:
       - name: Plan releases
         id: plan
         run: .github/scripts/plan-releases.sh
+
+      - uses: actions/checkout@v4
+        if: steps.plan.outputs.count != '0'
+        with:
+          repository: revenge-mod/revenge-xposed
+          path: revenge-xposed
+
+      - name: Build revenge-xposed
+        if: steps.plan.outputs.count != '0'
+        run: cd revenge-xposed && ./gradlew --no-daemon :api:publishToMavenLocal
 
       - name: Build plugins
         if: steps.plan.outputs.count != '0'
