@@ -3,9 +3,9 @@
 package dev.vriska.revengepk
 
 import android.widget.TextView
-import io.github.revenge.plugins.plugin
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import io.github.revenge.plugins.plugin
 import java.lang.invoke.MethodHandles.publicLookup
 import java.lang.invoke.MethodType.methodType
 
@@ -50,11 +50,14 @@ val revengePk = plugin {
                     val entry = Cache[cacheKey] ?: return
                     log.i(entry.toString())
 
-                    /* if (entry.memberColor != null && entry.systemColor != null) {
-                        val spannable = SpannableString(textView.getText())
-                        spannable.setSpan(ForegroundColorSpan(0xFFFF00FF.toInt()), 1, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        textView.setText(spannable, TextView.BufferType.SPANNABLE)
-                    } else */ if (entry.memberColor != null) {
+                    if (entry.memberColor != null && entry.systemColor != null) {
+                        val spannable = colorName(textView.text, entry)
+                        if (spannable != null) {
+                            textView.setText(spannable, TextView.BufferType.SPANNABLE)
+                        } else {
+                            textView.setTextColor(entry.memberColor)
+                        }
+                    } else if (entry.memberColor != null) {
                         textView.setTextColor(entry.memberColor)
                     } else if (entry.systemColor != null) {
                         textView.setTextColor(entry.systemColor)
