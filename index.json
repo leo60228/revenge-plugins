@@ -8,7 +8,7 @@
       "description": "PluralKit integration for Revenge Next",
       "author": "leo vriska",
       "channels": {
-        "latest": "0.3.0"
+        "latest": "0.3.1"
       },
       "versions": {
         "0.1.0": {
@@ -41,6 +41,19 @@
           "url": "https://leo60228.github.io/revenge-plugins/pool/dev.vriska.revenge-pk@0.3.0.zip",
           "sha256": "024e6ee4137a510997e5a1a5905886033e933461a1d25486c5474ae891ac05de",
           "size": 16694,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "0.3.1": {
+          "url": "https://leo60228.github.io/revenge-plugins/pool/dev.vriska.revenge-pk@0.3.1.zip",
+          "sha256": "107b031ac9bac5d6f98c5caaadca00925c6dac112b8213e6e521aef359f5cdd7",
+          "size": 16702,
           "dependencies": {
             "revenge.api": {
               "version": ">=1 <2"
