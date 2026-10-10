@@ -55,6 +55,8 @@ val revengePk = plugin {
                             textView.setText(spannable, TextView.BufferType.SPANNABLE)
                         } else if (entry.memberColor != null) {
                             textView.setTextColor(entry.memberColor)
+                        } else if (entry.systemColor != null) {
+                            textView.setTextColor(entry.systemColor)
                         }
                     }
                 }
