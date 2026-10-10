@@ -50,17 +50,11 @@ val revengePk = plugin {
 
                     Cache.acquire(cacheKey) { entry ->
                         log.i(entry.toString())
-                        if (entry.memberColor != null && entry.systemColor != null) {
-                            val spannable = colorName(textView.text, entry)
-                            if (spannable != null) {
-                                textView.setText(spannable, TextView.BufferType.SPANNABLE)
-                            } else {
-                                textView.setTextColor(entry.memberColor)
-                            }
+                        val spannable = colorName(textView.text, entry)
+                        if (spannable != null) {
+                            textView.setText(spannable, TextView.BufferType.SPANNABLE)
                         } else if (entry.memberColor != null) {
                             textView.setTextColor(entry.memberColor)
-                        } else if (entry.systemColor != null) {
-                            textView.setTextColor(entry.systemColor)
                         }
                     }
                 }
