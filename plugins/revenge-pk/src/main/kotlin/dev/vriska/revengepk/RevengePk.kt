@@ -4,6 +4,7 @@ package dev.vriska.revengepk
 
 import android.widget.TextView
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import io.github.revenge.plugins.plugin
 import java.lang.invoke.MethodHandles.publicLookup
@@ -29,13 +30,24 @@ val revengePk = plugin {
         val getUsername =
             publicLookup().unreflectGetter(usernameField).asType(methodType(String::class.java, Any::class.java))
 
-        log.i("setting up hooks")
-        hook = XposedHelpers.findAndHookMethod(
-            "com.discord.chat.presentation.message.MessageUtilsKt",
-            classLoader,
-            "clearOrSetRoleColors",
-            TextView::class.java,
-            "com.discord.chat.bridge.Message",
+        val clearOrSetRoleColors = dexFinder.findMethod {
+            matcher {
+                returnType = "void"
+                paramTypes(TextView::class.java, messageClass)
+
+                callerMethods {
+                    add {
+                        declaredClass("com.discord.chat.presentation.message.MessageView")
+                        returnType = "void"
+                        paramTypes(messageClass, null, null, null)
+                    }
+                }
+            }
+        } ?: error("couldn't find clearOrSetRoleColors")
+
+        log.i("hooking $clearOrSetRoleColors")
+        hook = XposedBridge.hookMethod(
+            clearOrSetRoleColors,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val textView = param.args[0] as TextView
